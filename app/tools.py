@@ -3,11 +3,11 @@ import fitz
 import os
 import json
 from google import genai
-from .config import GEMINI_API_KEY, OCR_MODEL, DRUG_DETECTION_MODEL
+from .config import GEMINI_API_KEY, OCR_MODEL, DRUG_DETECTION_MODEL, MAX_PAGES
 from google.genai import types
 
-def read_pdf_pages(pdf_path: str = "docs/patient_report.pdf", max_pages: int = 4) -> str:
-    """Reads the text from the first `max_pages` of the specified PDF using OCR via Gemini Vision."""
+def read_pdf_pages(pdf_path: str = "docs/patient_report.pdf", max_pages: int = MAX_PAGES) -> str:
+    """Reads the text from the specified PDF file via OCR using the Gemini API."""
     if not os.path.exists(pdf_path):
         return f"Error: File {pdf_path} not found."
     
@@ -36,7 +36,7 @@ def read_pdf_pages(pdf_path: str = "docs/patient_report.pdf", max_pages: int = 4
                         mime_type="image/png"
                     )
                 ]
-)
+            )
             text = response.text.strip() if response.text else ""
             content.append(f"--- PAGE {page_num + 1} ---\n{text}")
             
@@ -66,16 +66,17 @@ def drug_interaction_check(medications: str) -> str:
     except Exception as e:
         return f"Error performing drug interaction check: {str(e)}"
 
+#mock escalate 
 def escalate(issue_description: str) -> str:
     """Records an escalation for the clinician."""
     # In a real system, this might write to a database or trigger an alert.
     # Here, we just return a confirmation so the agent knows it succeeded.
     return f"ESCALATED TO CLINICIAN: {issue_description}"
 
-def execute_tool(tool_name: str, action_input: str) -> str:
+def execute_tool(tool_name: str, action_input: str, pdf_path: str = "docs/patient_report.pdf") -> str:
     """Router for tool execution."""
     if tool_name == "read_pdf_pages":
-        return read_pdf_pages()
+        return read_pdf_pages(pdf_path=pdf_path)
     elif tool_name == "drug_interaction_check":
         return drug_interaction_check(action_input)
     elif tool_name == "escalate":

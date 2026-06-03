@@ -3,3 +3,6 @@ pdfplumber
 google-genai
 python-dotenv
 pydantic
+nltk
+matplotlib
+fpdf2
