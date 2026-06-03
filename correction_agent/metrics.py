@@ -5,12 +5,29 @@ from app.models import DischargeSummary
 # Ensure nltk edit distance works (no extra download needed for standard edit_distance)
 from nltk.metrics.distance import edit_distance
 
-def calculate_schema_edit_distance(draft: DischargeSummary, reviewed: DischargeSummary) -> int:
-    """Calculates the Levenshtein edit distance between the JSON representations of two DischargeSummaries."""
-    draft_json = draft.model_dump_json(indent=2)
-    reviewed_json = reviewed.model_dump_json(indent=2)
+def calculate_schema_edit_distance(draft: DischargeSummary, correct_draft: DischargeSummary) -> int:
+    """Calculates the raw Levenshtein distance between two Pydantic schemas."""
+    draft_json = draft.model_dump_json()
+    correct_json = correct_draft.model_dump_json()
+    return edit_distance(draft_json, correct_json)
+
+def calculate_schema_edit_score(draft: DischargeSummary, correct_draft: DischargeSummary) -> float:
+    """Calculates a normalized similarity score based on the Levenshtein distance between two Pydantic schemas.
+    Score = 1 - (edit_distance / max_len)
+    """
+    draft_json = draft.model_dump_json()
+    correct_json = correct_draft.model_dump_json()
     
-    return edit_distance(draft_json, reviewed_json)
+    # Calculate raw distance
+    raw_distance = edit_distance(draft_json, correct_json)
+    
+    # Avoid division by zero if both are empty (unlikely but safe)
+    max_len = max(len(draft_json), len(correct_json))
+    if max_len == 0:
+        return 1.0
+        
+    normalized_distance = raw_distance / max_len
+    return 1.0 - normalized_distance
 
 def calculate_flag_recall(draft: DischargeSummary, reviewed: DischargeSummary) -> float:
     """Calculates the recall for escalation flags. 
