@@ -1,0 +1,133 @@
+{
+    "patient_demographics": {
+        "value": "NOT_FOUND",
+        "source_citation": ""
+    },
+    "admission_date": {
+        "value": "NOT_FOUND",
+        "source_citation": ""
+    },
+    "discharge_date": {
+        "value": "NOT_FOUND",
+        "source_citation": ""
+    },
+    "principal_diagnosis": {
+        "value": "CONFLICTING: ACUTE GASTROENTERITIS/UTI (Page 1) vs DKA (Page 3)",
+        "source_citation": "patient_report.pdf, Page 1, Page 3"
+    },
+    "secondary_diagnoses": [
+        {
+            "value": "Thyroid disorder",
+            "source_citation": "patient_report.pdf, Page 1"
+        }
+    ],
+    "hospital_course": {
+        "value": "Patient presented with loose stools, vomiting, fever, and fatigue. Initial labs showed elevated creatinine (1.65mg/dl) and hyponatremia (128.00mmol/L). Urine analysis indicated UTI. Treated with IV fluids, antibiotics, PPIs, and antiemetics. Repeat creatinine improved to 1.17mg/dl. Patient discharged at request against medical advice.",
+        "source_citation": "patient_report.pdf, Page 1-2"
+    },
+    "procedures": [
+        {
+            "value": "IV Cannulization",
+            "source_citation": "patient_report.pdf, Page 3"
+        },
+        {
+            "value": "USG Abdomen and Pelvis",
+            "source_citation": "patient_report.pdf, Page 2"
+        }
+    ],
+    "discharge_medications": [
+        {
+            "medication_name": "TAB. RACIPER 40MG",
+            "change_type": "ADDED",
+            "reason_for_change": {
+                "value": "UNDOCUMENTED",
+                "source_citation": "patient_report.pdf, Page 2"
+            }
+        },
+        {
+            "medication_name": "TAB. EMESET 4MG",
+            "change_type": "ADDED",
+            "reason_for_change": {
+                "value": "UNDOCUMENTED",
+                "source_citation": "patient_report.pdf, Page 2"
+            }
+        },
+        {
+            "medication_name": "TAB. OFLOX TZ",
+            "change_type": "ADDED",
+            "reason_for_change": {
+                "value": "UNDOCUMENTED",
+                "source_citation": "patient_report.pdf, Page 2"
+            }
+        },
+        {
+            "medication_name": "TAB M STRONG",
+            "change_type": "ADDED",
+            "reason_for_change": {
+                "value": "UNDOCUMENTED",
+                "source_citation": "patient_report.pdf, Page 2"
+            }
+        },
+        {
+            "medication_name": "TAB. ZEDOTT",
+            "change_type": "ADDED",
+            "reason_for_change": {
+                "value": "UNDOCUMENTED",
+                "source_citation": "patient_report.pdf, Page 2"
+            }
+        },
+        {
+            "medication_name": "TAB. ENTR(",
+            "change_type": "ADDED",
+            "reason_for_change": {
+                "value": "UNDOCUMENTED",
+                "source_citation": "patient_report.pdf, Page 2"
+            }
+        },
+        {
+            "medication_name": "TAB. MEFTAL SPAS",
+            "change_type": "ADDED",
+            "reason_for_change": {
+                "value": "UNDOCUMENTED",
+                "source_citation": "patient_report.pdf, Page 2"
+            }
+        },
+        {
+            "medication_name": "TAB. LOPIRAMIDE 2MG",
+            "change_type": "ADDED",
+            "reason_for_change": {
+                "value": "UNDOCUMENTED",
+                "source_citation": "patient_report.pdf, Page 2"
+            }
+        }
+    ],
+    "allergies": {
+        "value": "NOT_FOUND",
+        "source_citation": ""
+    },
+    "follow_up_instructions": {
+        "value": "Urine culture report pending; review immediately if symptoms persist; review on 09.03.2026 for CBC.",
+        "source_citation": "patient_report.pdf, Page 2"
+    },
+    "pending_results": [
+        {
+            "value": "Urine culture and sensitivity",
+            "source_citation": "patient_report.pdf, Page 2"
+        }
+    ],
+    "discharge_condition": {
+        "value": "Hemodynamically stable",
+        "source_citation": "patient_report.pdf, Page 2"
+    },
+    "conflicts_flagged": [
+        "Diagnosis mismatch: Gastroenteritis/UTI vs DKA.",
+        "Laboratory discrepancy: Creatinine values (1.65/1.17 vs 1.02/1.04) and Blood Glucose (443 mg/dl vs 246 mg/dl)."
+    ],
+    "escalations": [
+        "Chronic thyroid medication status not reconciled at discharge.",
+        "Lack of documentation for the initiation of discharge medication regimen.",
+        "Unresolved diagnostic conflict: Gastroenteritis/UTI vs DKA requires physician verification.",
+        "Critical laboratory data discrepancy requiring clinical review.",
+        "Missing patient demographics, admission/discharge dates, and allergy documentation."
+    ]
+}
