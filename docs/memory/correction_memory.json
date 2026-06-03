@@ -1,0 +1,13 @@
+{
+  "Do not mark Lisinopril change reason as N/A; use NOT_FOUND if it was not mentioned as being changed.": 1,
+  "Do not label undocumented as a reason; use MISSING when the rationale is absent from the medical record.": 1,
+  "Ensure hospital course accurately reflects the clinical ambiguity regarding the final weight and incomplete diagnostic results.": 1,
+  "Ensure follow-up instructions capture the instruction to call primary care for pending results.": 1,
+  "Do not fabricate follow-up instructions like 'Call PCP for any pending results' when they are not in the source text.": 1,
+  "Do not list 'PENDING' in pending_results when there is no evidence of pending labs in the source text.": 1,
+  "Maintain high fidelity to source text instructions; ensure discharge instructions only contain what is explicitly stated.": 1,
+  "Do not include medications like Amoxicillin in the summary if they are contraindicated by the patient's allergy profile. Flag these as critical safety hazards rather than listing them as discharge medications.": 1,
+  "Do not include medications like Lisinopril if there is no documented clinical indication in the progress notes.": 1,
+  "Corrected the final creatinine value to 1.8 mg/dL as stated in the Day 4 progress note, rather than the 1.6 mg/dL found in the faulty draft summary text.": 1,
+  "Always escalate any discrepancies between clinical documentation (such as nephrology recommendations) and proposed medication orders.": 1
+}
