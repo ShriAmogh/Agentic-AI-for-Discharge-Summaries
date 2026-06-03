@@ -20,22 +20,44 @@ class SimulatedReviewer:
         self.client = genai.Client(api_key=self.api_key)
     
     def review_draft(self, draft: DischargeSummary, source_text: str) -> tuple[DischargeSummary, List[str]]:
-        prompt = f"""You are a strict attending physician reviewing a Medical AI's draft Discharge Summary.
-You must compare the Draft against the original Source Text to ensure absolute accuracy and adherence to safety guardrails.
+        prompt = f"""You are a strict, detail-oriented attending physician reviewing a Medical AI's draft Discharge Summary against the raw Source Documentation.
+You must enforce absolute clinical accuracy, safety guardrails, and zero-tolerance for hallucinations.
 
-**REVIEWER POLICY**:
-1. Check for Fabrications: Are there any facts in the draft that do NOT exist in the source text?
-2. Check for Missing Information: Did the agent miss any labs, diagnoses, or undocumented medication changes?
-3. Check for Escaltion Failures: Did the agent fail to escalate undocumented medication changes or conflicts?
+### 1. EVALUATION OBJECTIVES
+* **Fabrication Check:** Identify any statements, values, dates, or clinical assertions in the draft that have NO evidence in the Source Text.
+* **Omission Check:** Identify missing critical data points (e.g., abnormal labs, secondary diagnoses, or pending tests).
+* **Escalation & Reconciliation Check:** Ensure the agent explicitly flagged missing data (like baseline home meds) or conflicting documentation (like cross-page diagnostic discrepancies) instead of smoothing them over.
 
-Source Text:
+### 2. SOURCE DATA
+**Original Source Text:**
 {source_text}
 
-Agent Draft (JSON):
+**Agent Draft (JSON):**
 {draft.model_dump_json(indent=2)}
 
-Please fix any errors in the draft to create a perfect, safe 'corrected_summary'.
-Also, generate a list of 'correction_reasons'. For each mistake found in the draft, write a short, clear instruction on how to avoid it (e.g., 'Do not fabricate a reason for starting carvedilol if it is not documented in the notes.').
+### 3. OUTPUT REQUIREMENTS
+You must generate:
+1. A perfect, safe `corrected_summary` JSON object matching the required schema.
+2. A list of `correction_reasons` that the agent can use to tune its weights/prompts.
+
+### 4. CRITICAL: CORRECTION REASONS FORMATTING POLICY
+Your `correction_reasons` MUST be high-level structural rules, but they **MUST NOT be lazy platitudes** (e.g., do not just say "Avoid fabrications"). They must pinpoint the *structural logic failure* without leaking case-specific words (names, specific medications like "Amoxicillin", or specific diagnoses like "DKA").
+
+Follow this **Taxonomy Formula** for your reasons:
+`[Section Affected] + [Specific Logical/Structural Failure] + [Expected Structural Behavior]`
+
+* **BAD (Too Specific):** "Failed to mention the patient's potassium level of 2.9 in the hospital course."
+* **BAD (Too Generic):** "Ensure the hospital course contains accurate clinical data."
+* **GOOD (Perfect Meta-Rule):** "In [Hospital Course], the agent omitted critical baseline laboratory values that deviated significantly from normal reference ranges; always extract and track acute metabolic trends sequentially."
+
+* **BAD (Too Specific):** "Ordered Amoxicillin despite a documented Penicillin allergy."
+* **BAD (Too Generic):** "Check for safety and medication issues."
+* **GOOD (Perfect Meta-Rule):** "In [Discharge Medications], the agent failed to cross-reference the extracted discharge prescription strings against the patient's documented historical allergen contraindications."
+
+* **BAD (Too Specific):** "Copied 'TAB. ENTR(' as a medication name."
+* **GOOD (Perfect Meta-Rule):** "In [Discharge Medications], the agent transcribed incomplete string fragments or truncated text characters from the source document without appending a verification or data-corruption flag."
+
+Please output the final corrected summary and the compliant list of meta-rules below:
 """
         
         try:

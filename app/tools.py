@@ -30,7 +30,7 @@ def read_pdf_pages(pdf_path: str = "docs/patient_report.pdf", max_pages: int = M
             response = client.models.generate_content(
                 model=OCR_MODEL,
                 contents=[
-                    "Extract all the text from this clinical document page exactly as written. Do not summarize or alter the text. Maintain the original structure where possible.",
+                    "Act as a flawless, literal medical OCR engine. Extract all text from this clinical document page exactly as written, syllable for syllable. Do not summarize, skip, or clean up the text. If a word or medication name appears cut off, broken, or finishes with open punctuation (e.g., 'TAB. ENTR('), transcribe it exactly as it appears without fixing it. Maintain the original document layout, headers, and tables using clean, readable Markdown structure.",
                     types.Part.from_bytes(
                         data=img_data,
                         mime_type="image/png"

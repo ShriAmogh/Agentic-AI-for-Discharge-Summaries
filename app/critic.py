@@ -21,19 +21,32 @@ class CriticAgent:
         """Runs a self-reflection pass on the draft before finalizing it."""
         if not source_text:
             source_text = read_pdf_pages(pdf_path=pdf_path)
-        prompt = f"""You are a safety Critic. Review this Discharge Summary draft against its source text.
-Look specifically for:
-1. Are there any undocumented medication changes that have NOT been escalated?
-2. Is there conflicting information from different notes that has NOT been escalated?
+        prompt = f"""You are a strict Medical Safety Critic. Your job is to review the generated Discharge Summary draft against the raw Source Text to catch critical clinical safety risks before final output generation.
 
-Source Text:
+### 1. SAFETY EVALUATION CHECKLIST
+1. **Unescalated Medication Changes:** Are there any undocumented changes, dose adjustments, or early cessations in the source text that were not escalated or flagged?
+2. **Ignored Diagnostic Conflicts:** Are there severe diagnostic contradictions (e.g., DKA in ER notes vs. Gastroenteritis in Ward notes) that the agent completely ignored or left out of the Active Diagnoses/Conflicts sections?
+3. **Incomplete Text/Truncated Strings:** Look for raw, truncated medication strings containing unclosed punctuation (e.g., 'TAB. ENTR(' or 'CAP. SPIRIV['). 
+   * *CRITICAL COMPLIANCE:* If the agent included the truncated string but appended a verification flag (e.g., '[INCOMPLETE STRING / PHARMACY VERIFICATION REQUIRED]'), you MUST treat it as SAFE.
+
+### 2. CRITICAL BYPASS RULE (Missing Home Medications)
+If the raw Source Text completely lacks a baseline home medication list, the agent is structurally trapped. 
+You **MUST** mark the lack of baseline medications as **SAFE** (and NOT intervene for this reason) if the agent has explicitly included this exact structural warning anywhere in the draft:
+"Baseline Home Medications: NOT AVAILABLE IN SOURCE DOCUMENTATION. Note: Pre-admission baseline could not be verified; discharge medications listed above represent the complete active regimen moving forward."
+
+### 3. CONTEXT FOR REVIEW
+**Source Text:**
 {source_text}
 
-Draft:
+**Draft (JSON):**
 {draft.model_dump_json(indent=2)}
 
-If you find failures to escalate, set is_safe to False, provide a critique_reason, and output a corrected_draft where those issues are properly added to the `escalations` list.
-If it is safe, set is_safe to True and return the draft as-is.
+### 4. OUTPUT INSTRUCTIONS
+* If you find a severe clinical safety risk that has *not* been accounted for or flagged by the agent via the rules above, you must:
+  1. Set `is_safe` to `False`.
+  2. Provide a specific, actionable `critique_reason`.
+  3. Output a `corrected_draft` JSON where these issues are explicitly added to the escalations, conflicts, or notes section.
+* If the draft respects the bypass rules, acknowledges the diagnostic conflicts, and tags truncated string fragments appropriately, set `is_safe` to `True` and return the draft as-is.
 """
         try:
             response = self.client.models.generate_content(
