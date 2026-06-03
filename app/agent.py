@@ -1,11 +1,12 @@
 import json
 import os
 from google import genai
-from .prompts import SYSTEM_PROMPT
+from .prompts import get_system_prompt
 from .config import GEMINI_API_KEY, AGENT_MODEL, MAX_STEPS
 from .tools import execute_tool
 from .models import DischargeSummary
 from .guardrails import validate_citations
+from .critic import CriticAgent
 
 class DischargeSummaryAgent:
     def __init__(self, api_key: str = None):
@@ -31,14 +32,28 @@ class DischargeSummaryAgent:
         print(f"ACTION: {action} ({action_input})")
         print(f"RESULT: {result[:200]}...\n")
 
-    def run(self) -> tuple[DischargeSummary | None, list]:
-        """Runs the ReAct loop until completion or MAX_STEPS."""
+    def run(self, pdf_path: str = "docs/patient_report.pdf", corrections_context: str = "", source_text: str = "") -> tuple[DischargeSummary | None, list]:
+        """Runs the ReAct loop until completion or MAX_STEPS.
+        
+        Args:
+            pdf_path: Path to the source document (PDF for real patient, JSON for synthetic).
+            corrections_context: Top-K mistakes from CorrectionMemory to inject into the prompt.
+            source_text: If provided (e.g. pre-loaded JSON text), this is injected directly into
+                         the conversation so the agent doesn't need to call the read_pdf_pages tool.
+        """
         step_count = 0
+        print(f"Max steps: {self.max_steps}")
         
         # History tracks the conversation context
-        history = [{"role": "user", "parts": [{"text": SYSTEM_PROMPT}]}]
+        history = [{"role": "user", "parts": [{"text": get_system_prompt(pdf_path, corrections_context)}]}]
+        
+        # If source text is pre-loaded (e.g. from a JSON file), inject it directly.
+        # This bypasses the read_pdf_pages OCR tool call.
+        if source_text:
+            history.append({"role": "user", "parts": [{"text": f"Source Document Content:\n{source_text}\n\nNow proceed with your analysis and use the remaining tools (drug_interaction_check, escalate) as needed, then COMPOSE the final summary."}]})
         
         while step_count < self.max_steps:
+            print(f"Current step: {step_count}")
             step_count += 1
             
             # 1. Ask the model for the next action
@@ -71,7 +86,7 @@ class DischargeSummaryAgent:
                     self.log_trace(step_count, thought, action, action_input, "Proceeding to generation phase.")
                     break # Break out of ReAct loop, ready to generate final schema
                 
-                tool_result = execute_tool(action, action_input)
+                tool_result = execute_tool(action, action_input, pdf_path=pdf_path)
                 self.log_trace(step_count, thought, action, action_input, tool_result)
                 
                 # 3. Append to history for next iteration
@@ -110,6 +125,13 @@ class DischargeSummaryAgent:
                 for err in validation_errors:
                     print(f" - {err}")
                 print("The agent attempted to fabricate data without a citation!")
+            
+            
+            # 5. Run Critic Agent Self-Reflection
+            print("\n🧐 Critic Agent reflecting on draft...")
+            critic = CriticAgent(api_key=self.api_key)
+            # If source_text was pre-loaded, pass it directly; else critic reads the PDF itself
+            draft = critic.reflect(draft, pdf_path=pdf_path, source_text=source_text)
             
             return draft, self.trace_log
             
