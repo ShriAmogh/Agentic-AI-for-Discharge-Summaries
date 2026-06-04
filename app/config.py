@@ -15,8 +15,9 @@ SYNTHETIC_DATA_MODEL = "models/gemini-flash-lite-latest"
 CRITIC_MODEL = "models/gemini-flash-lite-latest"
 
 # Agent Configurations
-MAX_STEPS = 8
+MAX_STEPS = 4
 MAX_PAGES = 12
+USE_CRITIC_AGENT = False
 
 # Learning Loop / Correction Agent Configurations
 SYNTHETIC_DATA_PATHS = [

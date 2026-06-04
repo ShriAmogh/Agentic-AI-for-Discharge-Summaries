@@ -2,7 +2,7 @@ import json
 import os
 from google import genai
 from .prompts import get_system_prompt
-from .config import GEMINI_API_KEY, AGENT_MODEL, MAX_STEPS
+from .config import GEMINI_API_KEY, AGENT_MODEL, MAX_STEPS, USE_CRITIC_AGENT
 from .tools import execute_tool
 from .models import DischargeSummary
 from .guardrails import validate_citations
@@ -128,10 +128,13 @@ class DischargeSummaryAgent:
             
             
             # 5. Run Critic Agent Self-Reflection
-            print("\n🧐 Critic Agent reflecting on draft...")
-            critic = CriticAgent(api_key=self.api_key)
-            # If source_text was pre-loaded, pass it directly; else critic reads the PDF itself
-            draft = critic.reflect(draft, pdf_path=pdf_path, source_text=source_text)
+            if USE_CRITIC_AGENT:
+                print("\n🧐 Critic Agent reflecting on draft...")
+                critic = CriticAgent(api_key=self.api_key)
+                # If source_text was pre-loaded, pass it directly; else critic reads the PDF itself
+                draft = critic.reflect(draft, pdf_path=pdf_path, source_text=source_text)
+            else:
+                print("\n⏩ Critic Agent disabled (USE_CRITIC_AGENT = False). Skipping reflection...")
             
             return draft, self.trace_log
             
