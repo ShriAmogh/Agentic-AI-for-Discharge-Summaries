@@ -1,4 +1,4 @@
-# Agentic AI for Discharge Summaries (DScribe Assignment)
+# Agentic AI for Discharge Summaries
 
 This repository contains an AI-powered pipeline designed to automate the extraction and synthesis of highly accurate, clinically safe Discharge Summaries from unstructured hospital records. The system is split into two phases: a robust **ReAct Agent** (Part 1) and an **Agentic Learning Loop** (Part 2) that allows the agent to learn from its past mistakes over time.
 
